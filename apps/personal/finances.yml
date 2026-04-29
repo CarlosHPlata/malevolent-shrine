@@ -1,0 +1,12 @@
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: finances
+  owner: personal
+spec:
+  image: 192.168.1.206:5000/finances:latest
+  port: 3000
+  routing:
+    domain: finances.home.lab
+  networking:
+    exposeToPlatform: true

@@ -1,0 +1,10 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: personal
+spec:
+  displayName: "Personal Projects"
+  contact: carlos.ksa21@gmail.com
+  quotas:
+    maxApps: 10
+    maxResources: 10
