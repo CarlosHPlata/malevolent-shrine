@@ -1,0 +1,19 @@
+http:
+    routers:
+        personal-finances:
+            rule: Host(`finances.home.lab`)
+            service: personal-finances
+            entryPoints:
+                - web
+        personal-finances-alias-0:
+            rule: Host(`gateway.tail9a6ddb.ts.net`) && PathPrefix(`/finances`)
+            service: personal-finances
+            entryPoints:
+                - web
+                - websecure
+            tls: {}
+    services:
+        personal-finances:
+            loadBalancer:
+                servers:
+                    - url: http://personal.finances:3000

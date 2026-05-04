@@ -1,0 +1,17 @@
+entryPoints:
+    traefik:
+        address: :8080
+    web:
+        address: :80
+    websecure:
+        address: :443
+api:
+    dashboard: true
+providers:
+    file:
+        directory: /etc/traefik/dynamic
+        watch: true
+tls:
+    certificates:
+        - certFile: /etc/traefik/certs/gateway.tail9a6ddb.ts.net.crt
+          keyFile: /etc/traefik/certs/gateway.tail9a6ddb.ts.net.key

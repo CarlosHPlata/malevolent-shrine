@@ -1,0 +1,11 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: test
+spec:
+  displayName: "Test for applications"
+  contact: "carlos.ksa21@gmail.com"
+  quotas:
+    maxApps: 3
+    maxResources: 1
+  registryUser: legion

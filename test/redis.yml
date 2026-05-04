@@ -1,0 +1,21 @@
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: aterrizar-redis
+  owner: test 
+spec:
+  type: redis
+  version: latest
+  image: 'bitnami/redis:latest'
+  port: 6379
+  outputs:
+    - name: host
+    - name: port
+    - name: REDIS_USERNAME
+      value: default
+    - name: REDIS_DATABASES
+      value: 16
+    - name: REDIS_PASSWORD
+      generated: true
+  networking:
+    exposeToPlatform: false

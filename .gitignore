@@ -1,0 +1,4 @@
+traefik/certs/*
+traefik/dynamic/__shrine-dashboard.yml
+personal/
+personal.yml
