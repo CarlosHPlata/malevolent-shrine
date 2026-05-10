@@ -1,4 +1,6 @@
 traefik/certs/*
 traefik/dynamic/__shrine-dashboard.yml
+traefik/dynamic/registry.yml
+traefik/dynamic/personal-finances.yml
 personal/
 personal.yml

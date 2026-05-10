@@ -15,3 +15,10 @@ tls:
     certificates:
         - certFile: /etc/traefik/certs/gateway.tail9a6ddb.ts.net.crt
           keyFile: /etc/traefik/certs/gateway.tail9a6ddb.ts.net.key
+accessLog:
+  format: json
+  fields:
+    headers:
+      defaultMode: keep
+log:
+  level: INFO
