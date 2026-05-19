@@ -4,7 +4,7 @@ metadata:
   name: aterrizar-backend
   owner: test 
 spec:
-  image: 192.168.1.206:5000/aterrizar:latest
+  image: reg:falcon/aterrizar:latest
   port: 8080
   replicas: 1
   routing:

@@ -1,0 +1,44 @@
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: ops-docs-ui
+  owner: ops_docs
+spec:
+  image: lscr.io/linuxserver/bookstack:latest
+  port: 80
+  replicas: 1
+  routing:
+    domain: ops.docs.bookstack.internal
+    aliases:
+      - host: gateway.tail9a6ddb.ts.net
+        pathPrefix: /bookstack
+        stripPrefix: true
+        tls: true
+  env:
+    - name: APP_URL
+      value: "https://gateway.tail9a6ddb.ts.net/bookstack"
+    - name: APP_URL_FORCE_HTTPS
+      value: true
+    - name: APP_KEY
+      valueFrom: "vault:ops/prod/DOCS_APP_KEY"
+    - name: DB_HOST
+      valueFrom: resource.ops-docs-db.host
+    - name: DB_PORT
+      valueFrom: resource.ops-docs-db.port
+    - name: DB_DATABASE
+      valueFrom: resource.ops-docs-db.MARIADB_DATABASE
+    - name: DB_USERNAME
+      valueFrom: resource.ops-docs-db.MARIADB_USER
+    - name: DB_PASSWORD
+      valueFrom: resource.ops-docs-db.MARIADB_PASSWORD
+    - name: PUID
+      value: "1000"
+    - name: PGID
+      value: "1000"
+    - name: TZ
+      value: "Europe/Madrid"
+  volumes:
+    - name: config
+      mountPath: /config
+  networking:
+    exposeToPlatform: true

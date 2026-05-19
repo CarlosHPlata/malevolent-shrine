@@ -1,0 +1,25 @@
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: ops-docs-db
+  owner: ops_docs
+spec:
+  type: mariadb
+  version: "11"
+  port: 3306
+  outputs:
+    - name: host
+    - name: port
+    - name: MARIADB_DATABASE
+      value: "bookstack"
+    - name: MARIADB_USER
+      value: "bookstack"
+    - name: MARIADB_PASSWORD
+      generated: true
+    - name: MARIADB_ROOT_PASSWORD
+      generated: true
+  volumes:
+    - name: data
+      mountPath: /var/lib/mysql
+  networking:
+    exposeToPlatform: false

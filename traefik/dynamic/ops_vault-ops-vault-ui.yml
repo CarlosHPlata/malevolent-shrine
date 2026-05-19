@@ -1,0 +1,26 @@
+http:
+    middlewares:
+        ops_vault-ops-vault-ui-strip-0:
+            stripPrefix:
+                prefixes:
+                    - /vault
+    routers:
+        ops_vault-ops-vault-ui:
+            rule: Host(`ops.vault.bookstack.internal`)
+            service: ops_vault-ops-vault-ui
+            entryPoints:
+                - web
+        ops_vault-ops-vault-ui-alias-0:
+            rule: Host(`gateway.tail9a6ddb.ts.net`) && PathPrefix(`/vault`)
+            service: ops_vault-ops-vault-ui
+            entryPoints:
+                - web
+                - websecure
+            middlewares:
+                - ops_vault-ops-vault-ui-strip-0
+            tls: {}
+    services:
+        ops_vault-ops-vault-ui:
+            loadBalancer:
+                servers:
+                    - url: http://10.200.0.1:4001

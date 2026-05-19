@@ -1,0 +1,11 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: ops_docs
+spec:
+  displayName: "DevOps Documentation"
+  contact: "carlos.kas21@gmail.com"
+  quotas:
+    maxApps: 1
+    maxResources: 2
+  registryUser: legion

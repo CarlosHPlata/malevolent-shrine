@@ -4,7 +4,7 @@ metadata:
   name: aterrizar-externaldeps
   owner: test 
 spec:
-  image: 192.168.1.206:5000/aterrizardeps:latest
+  image: reg:falcon/aterrizardeps:latest
   port: 8080
   replicas: 1
   routing:

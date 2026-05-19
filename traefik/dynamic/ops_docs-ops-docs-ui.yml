@@ -1,0 +1,26 @@
+http:
+    middlewares:
+        ops_docs-ops-docs-ui-strip-0:
+            stripPrefix:
+                prefixes:
+                    - /bookstack
+    routers:
+        ops_docs-ops-docs-ui:
+            rule: Host(`ops.docs.bookstack.internal`)
+            service: ops_docs-ops-docs-ui
+            entryPoints:
+                - web
+        ops_docs-ops-docs-ui-alias-0:
+            rule: Host(`gateway.tail9a6ddb.ts.net`) && PathPrefix(`/bookstack`)
+            service: ops_docs-ops-docs-ui
+            entryPoints:
+                - web
+                - websecure
+            middlewares:
+                - ops_docs-ops-docs-ui-strip-0
+            tls: {}
+    services:
+        ops_docs-ops-docs-ui:
+            loadBalancer:
+                servers:
+                    - url: http://ops_docs.ops-docs-ui:80
