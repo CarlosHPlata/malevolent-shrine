@@ -1,0 +1,37 @@
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: ops-bot
+  owner: ops_bot
+spec:
+  image: reg:falcon/discord-tickets:4.0.50
+  port: 8169
+  replicas: 1
+  env:
+    - name: DISCORD_TOKEN
+      valueFrom: "vault:ops/prod/DISCORD_BOT_TOKEN"
+    - name: DISCORD_SECRET
+      valueFrom: "vault:ops/prod/DISCORD_BOT_SECRET"
+    - name: ENCRYPTION_KEY
+      valueFrom: "vault:ops/prod/DISCORD_BOT_ENCRYPTION_KEY"
+    - name: DB_PROVIDER
+      value: "postgresql"
+    - name: DB_CONNECTION_URL
+      valueFrom: resource.ops-bot-db.DB_CONNECTION_URL
+    - name: HTTP_HOST
+      value: "0.0.0.0"
+    - name: HTTP_PORT
+      value: "8169"
+    - name: HTTP_EXTERNAL
+      value: "http://ops-bot:8169"
+    - name: HTTP_TRUST_PROXY
+      value: "false"
+    - name: PUBLISH_COMMANDS
+      value: "true"
+    - name: TZ
+      value: "Europe/Madrid"
+  volumes:
+    - name: user
+      mountPath: /home/container/user
+  networking:
+    exposeToPlatform: false

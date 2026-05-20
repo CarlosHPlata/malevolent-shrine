@@ -1,0 +1,25 @@
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: ops-bot-db
+  owner: ops_bot
+spec:
+  type: postgres
+  version: "16"
+  port: 5432
+  outputs:
+    - name: host
+    - name: port
+    - name: POSTGRES_DB
+      value: "discordtickets"
+    - name: POSTGRES_USER
+      value: "discordtickets"
+    - name: POSTGRES_PASSWORD
+      generated: true
+    - name: DB_CONNECTION_URL
+      template: "postgresql://{{.POSTGRES_USER}}:{{.POSTGRES_PASSWORD}}@{{.host}}:{{.port}}/{{.POSTGRES_DB}}"
+  volumes:
+    - name: data
+      mountPath: /var/lib/postgresql/data
+  networking:
+    exposeToPlatform: false

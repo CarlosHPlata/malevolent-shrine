@@ -1,0 +1,11 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: ops_bot
+spec:
+  displayName: "DevOps Ticket Bot"
+  contact: "carlos.kas21@gmail.com"
+  quotas:
+    maxApps: 1
+    maxResources: 1
+  registryUser: legion
