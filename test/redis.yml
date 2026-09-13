@@ -8,14 +8,17 @@ spec:
   version: latest
   image: 'bitnami/redis:latest'
   port: 6379
-  outputs:
-    - name: host
-    - name: port
+  env:
     - name: REDIS_USERNAME
       value: default
     - name: REDIS_DATABASES
       value: 16
     - name: REDIS_PASSWORD
       generated: true
+  outputs:
+    - name: host
+    - name: port
+    - name: REDIS_USERNAME
+    - name: REDIS_PASSWORD
   networking:
     exposeToPlatform: false

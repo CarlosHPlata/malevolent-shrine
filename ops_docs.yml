@@ -6,6 +6,6 @@ spec:
   displayName: "DevOps Documentation"
   contact: "carlos.kas21@gmail.com"
   quotas:
-    maxApps: 1
-    maxResources: 2
+    maxApps: 3
+    maxResources: 10
   registryUser: legion

@@ -23,7 +23,9 @@ spec:
     - name: HTTP_PORT
       value: "8169"
     - name: HTTP_EXTERNAL
-      value: "http://ops-bot:8169"
+      value: "http://127.0.0.1:8169"
+    - name: HTTP_INTERNAL
+      value: "http://127.0.0.1:8169"
     - name: HTTP_TRUST_PROXY
       value: "false"
     - name: PUBLISH_COMMANDS
@@ -34,4 +36,6 @@ spec:
     - name: user
       mountPath: /home/container/user
   networking:
-    exposeToPlatform: false
+    exposeToPlatform: true
+    publish: 
+      hostPort: 8169

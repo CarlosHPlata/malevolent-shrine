@@ -7,15 +7,16 @@ spec:
   type: postgres
   version: "16"
   port: 5432
-  outputs:
-    - name: host
-    - name: port
+  env:
     - name: POSTGRES_DB
       value: "discordtickets"
     - name: POSTGRES_USER
       value: "discordtickets"
     - name: POSTGRES_PASSWORD
       generated: true
+  outputs:
+    - name: host
+    - name: port
     - name: DB_CONNECTION_URL
       template: "postgresql://{{.POSTGRES_USER}}:{{.POSTGRES_PASSWORD}}@{{.host}}:{{.port}}/{{.POSTGRES_DB}}"
   volumes:
