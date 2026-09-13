@@ -1,0 +1,54 @@
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: ops-excalidraw-back
+  owner: ops_docs
+spec:
+  image: zimengxiong/excalidash-backend:latest
+  port: 8000
+  replicas: 1
+  env:
+    - name: DATABASE_PROVIDER
+      value: "sqlite"
+    - name: DATABASE_URL
+      value: "file:/app/prisma/dev.db"
+    - name: PORT
+      value: "8000"
+    - name: NODE_ENV
+      value: "production"
+    - name: AUTH_MODE
+      value: "local"
+    # Keep disabled unless a trusted proxy sanitizes forwarded headers.
+    - name: TRUST_PROXY
+      value: "false"
+    # Must be >= 32 chars in production. If these two are removed, the image
+    # entrypoint generates them once and persists them in the data volume.
+    - name: JWT_SECRET
+      valueFrom: "vault:ops/prod/EXCALIDASH_JWT_SECRET"
+    - name: CSRF_SECRET
+      valueFrom: "vault:ops/prod/EXCALIDASH_CSRF_SECRET"
+    # Optional OIDC settings (required for AUTH_MODE=hybrid or oidc_enforced):
+    # - name: OIDC_PROVIDER_NAME
+    #   value: "Authentik"
+    # - name: OIDC_ISSUER_URL
+    #   value: "https://auth.example.com/application/o/excalidash/"
+    # - name: OIDC_CLIENT_ID
+    #   valueFrom: "vault:ops/prod/EXCALIDASH_OIDC_CLIENT_ID"
+    # - name: OIDC_CLIENT_SECRET
+    #   valueFrom: "vault:ops/prod/EXCALIDASH_OIDC_CLIENT_SECRET"
+    # - name: OIDC_REDIRECT_URI
+    #   value: "https://excalidash.example.com/api/auth/oidc/callback"
+    # Optional scheduled SQLite backups (pair with the backups volume below):
+    # - name: BACKUP_SCHEDULE
+    #   value: "0 0 4 * * *"
+    # - name: BACKUP_DIR
+    #   value: "/app/backups"
+    # - name: BACKUP_RETENTION_DAYS
+    #   value: "14"
+  volumes:
+    - name: data
+      mountPath: /app/prisma
+    # - name: backups
+    #   mountPath: /app/backups
+  networking:
+    exposeToPlatform: false

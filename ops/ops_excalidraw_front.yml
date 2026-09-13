@@ -1,0 +1,23 @@
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: ops-excalidraw-front
+  owner: ops_docs
+spec:
+  image: zimengxiong/excalidash-frontend:latest
+  port: 80
+  replicas: 1
+  routing:
+    domain: ops.docs.excalidraw.internal
+  env:
+    - name: BACKEND_HOST
+      valueFrom: application.ops-excalidraw-back.host
+    - name: BACKEND_PORT
+      valueFrom: application.ops-excalidraw-back.port
+    # nginx proxies /api/ and /socket.io/ here; format is host:port, no scheme.
+    - name: BACKEND_URL
+      template: "{{.BACKEND_HOST}}:{{.BACKEND_PORT}}"
+  networking:
+    exposeToPlatform: true
+    publish:
+      hostPort: 6767
