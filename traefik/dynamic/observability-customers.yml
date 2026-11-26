@@ -10,6 +10,13 @@ http:
             service: observability-customers
             entryPoints:
                 - web
+        observability-customers-alias-1:
+            rule: Host(`apps.tail9a6ddb.ts.net`) && PathPrefix(`/customers`)
+            service: observability-customers
+            entryPoints:
+                - web
+                - websecure
+            tls: {}
     services:
         observability-customers:
             loadBalancer:

@@ -10,6 +10,13 @@ http:
             service: observability-orders
             entryPoints:
                 - web
+        observability-orders-alias-1:
+            rule: Host(`apps.tail9a6ddb.ts.net`) && PathPrefix(`/orders`)
+            service: observability-orders
+            entryPoints:
+                - web
+                - websecure
+            tls: {}
     services:
         observability-orders:
             loadBalancer:

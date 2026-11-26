@@ -20,6 +20,20 @@ http:
             service: observability-cart
             entryPoints:
                 - web
+        observability-cart-alias-3:
+            rule: Host(`apps.tail9a6ddb.ts.net`) && PathPrefix(`/carts`)
+            service: observability-cart
+            entryPoints:
+                - web
+                - websecure
+            tls: {}
+        observability-cart-alias-4:
+            rule: Host(`apps.tail9a6ddb.ts.net`) && PathPrefix(`/stock`)
+            service: observability-cart
+            entryPoints:
+                - web
+                - websecure
+            tls: {}
     services:
         observability-cart:
             loadBalancer:
