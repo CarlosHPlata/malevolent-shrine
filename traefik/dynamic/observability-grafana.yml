@@ -1,0 +1,26 @@
+http:
+    middlewares:
+        observability-grafana-strip-0:
+            stripPrefix:
+                prefixes:
+                    - /grafana
+    routers:
+        observability-grafana:
+            rule: Host(`grafana.observability.internal`)
+            service: observability-grafana
+            entryPoints:
+                - web
+        observability-grafana-alias-0:
+            rule: Host(`gateway.tail9a6ddb.ts.net`) && PathPrefix(`/grafana`)
+            service: observability-grafana
+            entryPoints:
+                - web
+                - websecure
+            middlewares:
+                - observability-grafana-strip-0
+            tls: {}
+    services:
+        observability-grafana:
+            loadBalancer:
+                servers:
+                    - url: http://observability.grafana:3000

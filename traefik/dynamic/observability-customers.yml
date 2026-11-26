@@ -1,0 +1,17 @@
+http:
+    routers:
+        observability-customers:
+            rule: Host(`otzzo.observability.internal`) && PathPrefix(`/customers`)
+            service: observability-customers
+            entryPoints:
+                - web
+        observability-customers-alias-0:
+            rule: Host(`platform.traefik`) && PathPrefix(`/customers`)
+            service: observability-customers
+            entryPoints:
+                - web
+    services:
+        observability-customers:
+            loadBalancer:
+                servers:
+                    - url: http://observability.customers:8000

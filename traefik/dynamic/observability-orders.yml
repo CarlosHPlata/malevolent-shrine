@@ -1,0 +1,17 @@
+http:
+    routers:
+        observability-orders:
+            rule: Host(`otzzo.observability.internal`) && PathPrefix(`/orders`)
+            service: observability-orders
+            entryPoints:
+                - web
+        observability-orders-alias-0:
+            rule: Host(`platform.traefik`) && PathPrefix(`/orders`)
+            service: observability-orders
+            entryPoints:
+                - web
+    services:
+        observability-orders:
+            loadBalancer:
+                servers:
+                    - url: http://observability.orders:3000

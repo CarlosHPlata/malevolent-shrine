@@ -1,0 +1,27 @@
+http:
+    routers:
+        observability-cart:
+            rule: Host(`otzzo.observability.internal`) && PathPrefix(`/carts`)
+            service: observability-cart
+            entryPoints:
+                - web
+        observability-cart-alias-0:
+            rule: Host(`otzzo.observability.internal`) && PathPrefix(`/stock`)
+            service: observability-cart
+            entryPoints:
+                - web
+        observability-cart-alias-1:
+            rule: Host(`platform.traefik`) && PathPrefix(`/carts`)
+            service: observability-cart
+            entryPoints:
+                - web
+        observability-cart-alias-2:
+            rule: Host(`platform.traefik`) && PathPrefix(`/stock`)
+            service: observability-cart
+            entryPoints:
+                - web
+    services:
+        observability-cart:
+            loadBalancer:
+                servers:
+                    - url: http://observability.cart:8080
