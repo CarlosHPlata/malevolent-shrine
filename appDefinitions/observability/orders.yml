@@ -20,6 +20,11 @@ spec:
       - host: platform.traefik
         pathPrefix: /orders
         stripPrefix: false
+      # The tailnet name of this node, so the store can be called from the tailnet.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /orders
+        stripPrefix: false
+        tls: true
   env:
     - name: CART_HOST
       valueFrom: application.cart.host

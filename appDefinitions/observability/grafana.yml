@@ -14,7 +14,7 @@ spec:
   routing:
     domain: grafana.observability.internal
     aliases:
-      - host: gateway.tail9a6ddb.ts.net
+      - host: apps.tail9a6ddb.ts.net
         pathPrefix: /grafana
         stripPrefix: true
         tls: true
@@ -26,9 +26,9 @@ spec:
       valueFrom: resource.loki.url
     - name: TEMPO_URL
       valueFrom: resource.tempo.url
-    # Served under /grafana on the tailnet gateway, which strips the prefix.
+    # Served under /grafana on the tailnet node, whose Traefik strips the prefix.
     - name: GF_SERVER_ROOT_URL
-      value: "https://gateway.tail9a6ddb.ts.net/grafana/"
+      value: "https://apps.tail9a6ddb.ts.net/grafana/"
     # No login. Editor is enough for Explore and dashboards; the compose
     # stack uses Admin, which is only acceptable on a laptop.
     - name: GF_AUTH_ANONYMOUS_ENABLED

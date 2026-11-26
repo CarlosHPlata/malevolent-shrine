@@ -1,7 +1,13 @@
 # Certificate for the tailnet host, used by the routes on the websecure
 # entrypoint. Traefik reads certificates from the dynamic configuration, not
-# from traefik.yml. The files live in traefik/certs/, which is not in git.
+# from traefik.yml. The files live in traefik/certs/, which is not in git; they
+# are issued and renewed on the box by tailscale-cert.timer.
 tls:
+    stores:
+        default:
+            defaultCertificate:
+                certFile: /etc/traefik/certs/apps.tail9a6ddb.ts.net.crt
+                keyFile: /etc/traefik/certs/apps.tail9a6ddb.ts.net.key
     certificates:
-        - certFile: /etc/traefik/certs/gateway.tail9a6ddb.ts.net.crt
-          keyFile: /etc/traefik/certs/gateway.tail9a6ddb.ts.net.key
+        - certFile: /etc/traefik/certs/apps.tail9a6ddb.ts.net.crt
+          keyFile: /etc/traefik/certs/apps.tail9a6ddb.ts.net.key

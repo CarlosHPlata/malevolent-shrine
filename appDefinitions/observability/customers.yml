@@ -19,6 +19,11 @@ spec:
       - host: platform.traefik
         pathPrefix: /customers
         stripPrefix: false
+      # The tailnet name of this node, so the store can be called from the tailnet.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /customers
+        stripPrefix: false
+        tls: true
   env:
     # orders already depends on customers, so a valueFrom back to orders would
     # be a dependency cycle. The address is built from the team name instead
