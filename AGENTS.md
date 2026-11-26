@@ -26,7 +26,7 @@ Full field-by-field detail (required/optional, defaults, `valueFrom` reference f
 
 ## How this repo is organized
 
-See [README.md](README.md) for the concrete layout: which Team manifest owns which Resources/Applications, and where each lives (`ops/`, `test/`, top-level Team files). `traefik/` is generated output from applications with `networking.exposeToPlatform: true` — don't hand-edit it to fix a routing problem; fix the owning Application manifest and redeploy.
+See [README.md](README.md) for the layout and the guide to adding manifests: Team manifests live in `teams/`, and each team's Resources/Applications live in `appDefinitions/<team>/`. The route files in `traefik/dynamic/<team>-<app>.yml` are generated from applications with `networking.exposeToPlatform: true` and a `routing.domain`. Don't hand-edit them to fix a routing problem: fix the owning Application manifest, delete the stale route file, and redeploy. `traefik/traefik.yml` and `traefik/dynamic/tls.yml` are maintained by hand.
 
 ## Working conventions for this repo
 
