@@ -1,12 +1,13 @@
 # Collector: receives traces over OTLP (4318 HTTP, 4317 gRPC) and forwards
-# them to Tempo; ships the store's logs to Loki.
+# them to Tempo; receives the services' log lines on 3500 (Loki push API)
+# and forwards them to Loki.
 apiVersion: shrine/v1
 kind: Application
 metadata:
   name: alloy
   owner: observability
 spec:
-  # grafana/alloy with ops/alloy/config.alloy inside. No tag: under Pinned,
+  # grafana/alloy with ops/alloy/config.shrine.alloy inside. No tag: under Pinned,
   # Shrine resolves the newest version once and records it.
   image: reg:falcon/observer-alloy
   imagePullPolicy: Pinned

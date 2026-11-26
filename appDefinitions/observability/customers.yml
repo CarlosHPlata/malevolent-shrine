@@ -36,5 +36,9 @@ spec:
       valueFrom: application.alloy.port
     - name: OTEL_EXPORTER_OTLP_ENDPOINT
       template: "http://{{.ALLOY_HOST}}:{{.ALLOY_PORT}}"
+    # Alloy cannot read container stdout here (no Docker socket), so the
+    # service also pushes its log lines to Alloy, which forwards them to Loki.
+    - name: LOG_PUSH_URL
+      template: "http://{{.ALLOY_HOST}}:3500/loki/api/v1/push"
   networking:
     exposeToPlatform: true
