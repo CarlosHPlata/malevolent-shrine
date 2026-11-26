@@ -1,0 +1,55 @@
+# Dashboards and Explore over Prometheus, Loki and Tempo.
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: grafana
+  owner: observability
+spec:
+  # grafana/grafana with ops/grafana/provisioning and dashboards inside. No
+  # tag: under Pinned, Shrine resolves the newest version once and records it.
+  image: reg:falcon/observer-grafana
+  imagePullPolicy: Pinned
+  port: 3000
+  replicas: 1
+  routing:
+    domain: grafana.observability.internal
+    aliases:
+      - host: gateway.tail9a6ddb.ts.net
+        pathPrefix: /grafana
+        stripPrefix: true
+        tls: true
+  env:
+    # Data source addresses, read by the provisioning file as ${VAR}.
+    - name: PROMETHEUS_URL
+      valueFrom: resource.prometheus.url
+    - name: LOKI_URL
+      valueFrom: resource.loki.url
+    - name: TEMPO_URL
+      valueFrom: resource.tempo.url
+    # Served under /grafana on the tailnet gateway, which strips the prefix.
+    - name: GF_SERVER_ROOT_URL
+      value: "https://gateway.tail9a6ddb.ts.net/grafana/"
+    # No login. Editor is enough for Explore and dashboards; the compose
+    # stack uses Admin, which is only acceptable on a laptop.
+    - name: GF_AUTH_ANONYMOUS_ENABLED
+      value: "true"
+    - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+      value: "Editor"
+    - name: GF_AUTH_DISABLE_LOGIN_FORM
+      value: "true"
+    - name: GF_AUTH_BASIC_ENABLED
+      value: "false"
+    - name: GF_ANALYTICS_REPORTING_ENABLED
+      value: "false"
+    - name: GF_ANALYTICS_CHECK_FOR_UPDATES
+      value: "false"
+    - name: GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES
+      value: "false"
+    - name: GF_NEWS_NEWS_FEED_ENABLED
+      value: "false"
+    - name: GF_PLUGINS_PREINSTALL_DISABLED
+      value: "true"
+    - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+      value: "/var/lib/grafana/dashboards/otzzo-orders.json"
+  networking:
+    exposeToPlatform: true

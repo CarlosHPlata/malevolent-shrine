@@ -1,0 +1,17 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: observability
+spec:
+  displayName: "Observability (Otzzo store + telemetry stack)"
+  contact: "carlos.ksa21@gmail.com"
+  quotas:
+    # orders, cart, customers, traffic, alloy, grafana
+    maxApps: 6
+    # loki, tempo, prometheus
+    maxResources: 3
+    allowedResourceTypes:
+      - loki
+      - tempo
+      - prometheus
+  registryUser: legion

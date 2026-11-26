@@ -1,0 +1,42 @@
+# Otzzo store: carts, price quotes and stock (Go).
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: cart
+  owner: observability
+spec:
+  # No tag: under Pinned, Shrine resolves the newest version once and records it.
+  image: reg:falcon/observer-cart
+  imagePullPolicy: Pinned
+  port: 8080
+  replicas: 1
+  routing:
+    domain: otzzo.observability.internal
+    # The service owns both /carts and /stock; neither prefix is stripped.
+    pathPrefix: /carts
+    aliases:
+      - host: otzzo.observability.internal
+        pathPrefix: /stock
+        stripPrefix: false
+      # The gateway's own name on the platform network (see orders.yml).
+      - host: platform.traefik
+        pathPrefix: /carts
+        stripPrefix: false
+      - host: platform.traefik
+        pathPrefix: /stock
+        stripPrefix: false
+  env:
+    - name: CUSTOMERS_HOST
+      valueFrom: application.customers.host
+    - name: CUSTOMERS_PORT
+      valueFrom: application.customers.port
+    - name: CUSTOMERS_URL
+      template: "http://{{.CUSTOMERS_HOST}}:{{.CUSTOMERS_PORT}}"
+    - name: ALLOY_HOST
+      valueFrom: application.alloy.host
+    - name: ALLOY_PORT
+      valueFrom: application.alloy.port
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      template: "http://{{.ALLOY_HOST}}:{{.ALLOY_PORT}}"
+  networking:
+    exposeToPlatform: true

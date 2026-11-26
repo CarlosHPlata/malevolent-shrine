@@ -1,0 +1,24 @@
+# Metrics storage: scrapes /metrics on the three store services every 5 s.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: prometheus
+  owner: observability
+spec:
+  type: prometheus
+  # prom/prometheus with ops/prometheus/prometheus.shrine.yml inside; the
+  # scrape targets (observability.orders:3000 and so on) are in that file.
+  # No version: under Pinned, Shrine resolves the newest one once and records it.
+  image: reg:falcon/observer-prometheus
+  imagePullPolicy: Pinned
+  port: 9090
+  outputs:
+    - name: host
+    - name: port
+    - name: url
+      template: "http://{{.host}}:{{.port}}"
+  volumes:
+    - name: data
+      mountPath: /prometheus
+  networking:
+    exposeToPlatform: false

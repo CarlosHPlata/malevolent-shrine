@@ -1,0 +1,43 @@
+# Otzzo store: checkout, order lookup, order list, cancellation (Node + Hono).
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: orders
+  owner: observability
+spec:
+  # No tag: under Pinned, Shrine resolves the newest version once and records it.
+  image: reg:falcon/observer-orders
+  imagePullPolicy: Pinned
+  port: 3000
+  replicas: 1
+  routing:
+    domain: otzzo.observability.internal
+    # The primary route does not strip its prefix: the service owns /orders.
+    pathPrefix: /orders
+    aliases:
+      # The gateway's own name on the platform network, so the traffic
+      # generator can send requests through the gateway without DNS.
+      - host: platform.traefik
+        pathPrefix: /orders
+        stripPrefix: false
+  env:
+    - name: CART_HOST
+      valueFrom: application.cart.host
+    - name: CART_PORT
+      valueFrom: application.cart.port
+    - name: CART_URL
+      template: "http://{{.CART_HOST}}:{{.CART_PORT}}"
+    - name: CUSTOMERS_HOST
+      valueFrom: application.customers.host
+    - name: CUSTOMERS_PORT
+      valueFrom: application.customers.port
+    - name: CUSTOMERS_URL
+      template: "http://{{.CUSTOMERS_HOST}}:{{.CUSTOMERS_PORT}}"
+    - name: ALLOY_HOST
+      valueFrom: application.alloy.host
+    - name: ALLOY_PORT
+      valueFrom: application.alloy.port
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      template: "http://{{.ALLOY_HOST}}:{{.ALLOY_PORT}}"
+  networking:
+    exposeToPlatform: true

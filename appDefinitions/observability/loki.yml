@@ -1,0 +1,24 @@
+# Logs storage. Alloy writes to it, Grafana reads from it.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: loki
+  owner: observability
+spec:
+  type: loki
+  version: "3.7.10"
+  # Stock image: it starts with its built-in /etc/loki/local-config.yaml
+  # (single process, filesystem storage under /loki, no auth).
+  image: grafana/loki:3.7.10
+  imagePullPolicy: IfNotPresent
+  port: 3100
+  outputs:
+    - name: host
+    - name: port
+    - name: url
+      template: "http://{{.host}}:{{.port}}"
+  volumes:
+    - name: data
+      mountPath: /loki
+  networking:
+    exposeToPlatform: false

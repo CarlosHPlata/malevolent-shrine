@@ -1,0 +1,26 @@
+# Traces storage. Alloy sends OTLP over gRPC (4317), Grafana queries on 3200.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: tempo
+  owner: observability
+spec:
+  type: tempo
+  # grafana/tempo with ops/tempo/tempo.yml inside. No version: under Pinned,
+  # Shrine resolves the newest one once and records it.
+  image: reg:falcon/observer-tempo
+  imagePullPolicy: Pinned
+  port: 3200
+  outputs:
+    - name: host
+    - name: port
+    - name: url
+      template: "http://{{.host}}:{{.port}}"
+    # host:port, no scheme: the form Alloy's otelcol.exporter.otlp expects.
+    - name: otlpGrpcEndpoint
+      template: "{{.host}}:4317"
+  volumes:
+    - name: data
+      mountPath: /var/tempo
+  networking:
+    exposeToPlatform: false

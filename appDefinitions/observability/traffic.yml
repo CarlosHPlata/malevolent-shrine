@@ -1,0 +1,37 @@
+# Plays the customers of the shop: random requests to the gateway, forever.
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: traffic
+  owner: observability
+spec:
+  # curlimages/curl with ops/traffic/generate-request.sh as its entrypoint.
+  # No tag: under Pinned, Shrine resolves the newest version once and records it.
+  image: reg:falcon/observer-traffic
+  imagePullPolicy: Pinned
+  # The container listens on nothing; spec.port is required by the schema.
+  port: 8080
+  replicas: 1
+  # No env reads from the store, so the order is declared by hand.
+  dependencies:
+    - kind: Application
+      name: orders
+      owner: observability
+    - kind: Application
+      name: cart
+      owner: observability
+    - kind: Application
+      name: customers
+      owner: observability
+  env:
+    # Through the gateway, never straight to a service: the gateway is the
+    # only place where trace ids are created.
+    - name: STORE_URL
+      value: "http://platform.traefik"
+    - name: INTERVAL
+      value: "3"
+    - name: MAX_BURST
+      value: "3"
+  networking:
+    # Needed to reach the gateway on the platform network.
+    exposeToPlatform: true

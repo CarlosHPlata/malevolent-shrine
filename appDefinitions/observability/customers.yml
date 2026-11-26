@@ -1,0 +1,35 @@
+# Otzzo store: profiles, shipping addresses, loyalty, order history (Python + FastAPI).
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: customers
+  owner: observability
+spec:
+  # No tag: under Pinned, Shrine resolves the newest version once and records it.
+  image: reg:falcon/observer-customers
+  imagePullPolicy: Pinned
+  port: 8000
+  replicas: 1
+  routing:
+    domain: otzzo.observability.internal
+    # The primary route does not strip its prefix: the service owns /customers.
+    pathPrefix: /customers
+    aliases:
+      # The gateway's own name on the platform network (see orders.yml).
+      - host: platform.traefik
+        pathPrefix: /customers
+        stripPrefix: false
+  env:
+    # orders already depends on customers, so a valueFrom back to orders would
+    # be a dependency cycle. The address is built from the team name instead
+    # (<team>.<name> is the container's host); 3000 is orders' spec.port.
+    - name: ORDERS_URL
+      template: "http://{{.team}}.orders:3000"
+    - name: ALLOY_HOST
+      valueFrom: application.alloy.host
+    - name: ALLOY_PORT
+      valueFrom: application.alloy.port
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      template: "http://{{.ALLOY_HOST}}:{{.ALLOY_PORT}}"
+  networking:
+    exposeToPlatform: true

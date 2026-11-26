@@ -1,0 +1,25 @@
+# Collector: receives traces over OTLP (4318 HTTP, 4317 gRPC) and forwards
+# them to Tempo; ships the store's logs to Loki.
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: alloy
+  owner: observability
+spec:
+  # grafana/alloy with ops/alloy/config.alloy inside. No tag: under Pinned,
+  # Shrine resolves the newest version once and records it.
+  image: reg:falcon/observer-alloy
+  imagePullPolicy: Pinned
+  # OTLP over HTTP: what OTEL_EXPORTER_OTLP_ENDPOINT on the services points at.
+  port: 4318
+  replicas: 1
+  env:
+    # Read by config.alloy with sys.env().
+    - name: LOKI_URL
+      valueFrom: resource.loki.url
+    - name: TEMPO_OTLP_ENDPOINT
+      valueFrom: resource.tempo.otlpGrpcEndpoint
+  networking:
+    # The gateway (platform.traefik) sends its spans here, so Alloy has to be
+    # on the platform network. No routing block: it gets no public route.
+    exposeToPlatform: true
