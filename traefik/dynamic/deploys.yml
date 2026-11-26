@@ -1,0 +1,17 @@
+# Deploy status page. Not a Shrine app: shrine-deploys runs on the box itself
+# (systemd, /usr/local/bin/shrine-deploys) because it reads the Shrine CLI,
+# systemd timers and Docker. It listens on 10.200.0.1, the shrine.platform
+# bridge, so only Traefik reaches it. Hand-written, like tls.yml.
+http:
+    routers:
+        deploys:
+            rule: Host(`apps.tail9a6ddb.ts.net`) && PathPrefix(`/deploys`)
+            entryPoints:
+                - websecure
+            service: deploys
+            tls: {}
+    services:
+        deploys:
+            loadBalancer:
+                servers:
+                    - url: http://10.200.0.1:9180
