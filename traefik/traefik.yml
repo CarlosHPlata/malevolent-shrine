@@ -11,3 +11,18 @@ providers:
     file:
         directory: /etc/traefik/dynamic
         watch: true
+# Every request that enters through the gateway gets a trace id here. The
+# Otzzo services join that trace and write its id in each of their log lines.
+# Alloy is on the platform network (networking.exposeToPlatform in alloy.yml).
+tracing:
+    serviceName: gateway
+    otlp:
+        http:
+            endpoint: http://observability.alloy:4318/v1/traces
+accessLog:
+    format: json
+    fields:
+        headers:
+            defaultMode: keep
+log:
+    level: INFO
