@@ -1,0 +1,48 @@
+# Dsaster Event Service (Rust + Axum): event creation, venue pricing, sales
+# windows, scheduling and propagation to Booking and Search.
+# Source: https://github.com/hjanssena/dsaster-event-management
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: event-management
+  owner: aura
+spec:
+  # Published by the service's release workflow to the tailnet registry
+  # (gateway.tail9a6ddb.ts.net:5000/aura-event-management). Only prerelease
+  # tags exist so far; move this tag forward with each release.
+  image: reg:falcon/aura-event-management:0.0.0-beta
+  imagePullPolicy: IfNotPresent
+  port: 3000
+  replicas: 1
+  routing:
+    # Everything, including /swagger-ui and /health, on the internal name.
+    domain: event-management.aura.internal
+    aliases:
+      # The gateway's name on the platform network, for other teams' services
+      # (Booking Service recovers state from the public endpoints).
+      - host: platform.traefik
+        pathPrefix: /api/v1/events
+        stripPrefix: false
+      # The tailnet name of this node, for the frontends.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /api/v1/events
+        stripPrefix: false
+        tls: true
+  env:
+    - name: DATABASE_URL
+      valueFrom: resource.event-db.url
+    # Read once the outbox relay exists (TMP08); ignored by older images.
+    - name: KAFKA_BROKERS
+      valueFrom: resource.event-kafka.brokers
+    - name: SERVER_ADDR
+      value: "0.0.0.0:3000"
+    # Shared environments never accept mock tokens (ADR-007).
+    - name: MOCK_AUTH
+      value: "false"
+    # Venue Service is not reachable from here and does not expose zones yet.
+    # When it is: set this to "false", add VENUE_SERVICE_URL, and read
+    # VENUE_SERVICE_TOKEN from the vault (vault:<project>/<env>/VENUE_SERVICE_TOKEN).
+    - name: MOCK_VENUE_SERVICE
+      value: "true"
+  networking:
+    exposeToPlatform: true

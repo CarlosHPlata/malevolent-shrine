@@ -1,0 +1,28 @@
+# Event Service database (event_store). Private to the aura team: only
+# event-management connects to it.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: event-db
+  owner: aura
+spec:
+  type: postgres
+  # Same major version as the service's docker-compose and CI.
+  version: "15"
+  imagePullPolicy: IfNotPresent
+  port: 5432
+  env:
+    - name: POSTGRES_DB
+      value: event_store
+    - name: POSTGRES_PASSWORD
+      generated: true
+  outputs:
+    - name: host
+    - name: port
+    - name: url
+      template: "postgres://postgres:{{.POSTGRES_PASSWORD}}@{{.host}}:{{.port}}/{{.POSTGRES_DB}}"
+  volumes:
+    - name: data
+      mountPath: /var/lib/postgresql/data
+  networking:
+    exposeToPlatform: false

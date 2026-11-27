@@ -1,0 +1,15 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: aura
+spec:
+  displayName: "Aura (Dsaster Event Management)"
+  contact: "atsuro095@gmail.com"
+  quotas:
+    # event-management
+    maxApps: 1
+    # event-db, event-kafka
+    maxResources: 2
+    allowedResourceTypes:
+      - postgres
+      - kafka
