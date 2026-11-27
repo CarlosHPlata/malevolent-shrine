@@ -1,0 +1,20 @@
+# Purchase sessions and seat locks.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: booking-cache
+  owner: sap-atitos
+spec:
+  type: redis
+  version: "7-alpine"
+  port: 6379
+  command: ["redis-server", "--appendonly", "yes"]
+  outputs:
+    - name: host
+    - name: port
+    # StackExchange.Redis format, as ConnectionStrings:Redis expects.
+    - name: connectionString
+      template: "{{.host}}:{{.port}}"
+  volumes:
+    - name: data
+      mountPath: /data

@@ -1,0 +1,27 @@
+# Booking's store: events, seats, tickets and the outbox.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: booking-db
+  owner: sap-atitos
+spec:
+  type: postgres
+  # Same major as the service's docker-compose.yml.
+  version: "17-alpine"
+  port: 5432
+  env:
+    - name: POSTGRES_DB
+      value: bookingservice_db
+    - name: POSTGRES_USER
+      value: postgres
+    - name: POSTGRES_PASSWORD
+      generated: true
+  outputs:
+    - name: host
+    - name: port
+    # Npgsql keyword format, as ConnectionStrings:DefaultConnection expects.
+    - name: connectionString
+      template: "Host={{.host}};Port={{.port}};Database={{.POSTGRES_DB}};Username={{.POSTGRES_USER}};Password={{.POSTGRES_PASSWORD}}"
+  volumes:
+    - name: data
+      mountPath: /var/lib/postgresql/data
