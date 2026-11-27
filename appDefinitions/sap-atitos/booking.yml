@@ -1,0 +1,38 @@
+# Booking service: events, seat holds, purchase sessions and payment (.NET 10).
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: booking
+  owner: sap-atitos
+spec:
+  # No tag: under Pinned, Shrine resolves the newest version once and records it.
+  image: reg:falcon/sapatitos-booking
+  imagePullPolicy: Pinned
+  port: 8080
+  replicas: 1
+  routing:
+    domain: booking.sap-atitos.internal
+    aliases:
+      # The tailnet name of this node; the API serves from /, so the prefix is stripped.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /booking
+        stripPrefix: true
+        tls: true
+  env:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: Production
+    - name: ConnectionStrings__DefaultConnection
+      valueFrom: resource.booking-db.connectionString
+    - name: ConnectionStrings__Redis
+      valueFrom: resource.booking-cache.connectionString
+    # Purchase:* and Payment:* defaults from the service, stated so they can be tuned per environment.
+    - name: Purchase__SessionDuration
+      value: "00:10:00"
+    - name: Purchase__MaxSeats
+      value: "3"
+    - name: Payment__CaptureTimeout
+      value: "00:00:10"
+    - name: Payment__CaptureAttempts
+      value: "1"
+  networking:
+    exposeToPlatform: true

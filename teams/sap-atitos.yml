@@ -1,0 +1,15 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: sap-atitos
+spec:
+  displayName: "SAP-atitos"
+  contact: "isaacpechherrera@gmail.com"
+  quotas:
+    # booking
+    maxApps: 1
+    # booking-db, booking-cache
+    maxResources: 2
+    allowedResourceTypes:
+      - postgres
+      - redis
