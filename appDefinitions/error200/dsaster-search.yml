@@ -1,0 +1,26 @@
+# Search backend for discovering DSaster events.
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: dsaster-search
+  owner: error200
+spec:
+  image: reg:falcon/error200-dsaster-searchservice:1.2.0
+  imagePullPolicy: IfNotPresent
+  port: 5201
+  replicas: 1
+  routing:
+    domain: dsaster-search.dsaster.internal
+    pathPrefix: /events
+    aliases:
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /events
+        stripPrefix: false
+        tls: true
+  env:
+    - name: PORT
+      value: "5201"
+    - name: ELASTICSEARCH_URL
+      valueFrom: resource.elasticsearch.url
+  networking:
+    exposeToPlatform: true

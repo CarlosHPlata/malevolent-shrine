@@ -1,0 +1,29 @@
+# Event search storage for the DSaster search service.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: elasticsearch
+  owner: error200
+spec:
+  type: elasticsearch
+  version: "9.5.3"
+  image: elasticsearch:9.5.3
+  imagePullPolicy: IfNotPresent
+  port: 9200
+  env:
+    - name: discovery.type
+      value: single-node
+    - name: xpack.security.enabled
+      value: "false"
+    - name: ES_JAVA_OPTS
+      value: "-Xms512m -Xmx512m"
+  outputs:
+    - name: host
+    - name: port
+    - name: url
+      template: "http://{{.host}}:{{.port}}"
+  volumes:
+    - name: data
+      mountPath: /usr/share/elasticsearch/data
+  networking:
+    exposeToPlatform: false
