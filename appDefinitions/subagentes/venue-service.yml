@@ -1,0 +1,62 @@
+# Venue Service: venue catalogue, layout geometries and seating maps
+# (Node + Express + Prisma). Source: https://github.com/HectorBarrera13/venues
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: venue-service
+  owner: subagentes
+spec:
+  # Published by the service's release workflow to the tailnet registry
+  # (gateway.tail9a6ddb.ts.net:5000/subagentes-venue-service). Move this tag
+  # forward with each release; 0.1.1 is the newest one pushed so far.
+  image: reg:falcon/subagentes-venue-service:0.1.1
+  imagePullPolicy: IfNotPresent
+  port: 3000
+  replicas: 1
+  # The image's CMD is the bare server. On the platform the schema is pushed
+  # at startup instead (prisma is a runtime dependency for this; the prod
+  # image carries its engine binaries). replicas: 1 keeps the push safe.
+  command:
+    - sh
+    - -c
+    - >-
+      npx prisma db push --skip-generate &&
+      node dist/scripts/ensure-indexes.js &&
+      node dist/src/server.js
+  routing:
+    # The service owns /venues, /api/venues, /health and /ready, so no prefix
+    # is stripped anywhere.
+    domain: venue-service.subagentes.internal
+    aliases:
+      # The gateway's name on the platform network, for other teams' services
+      # (Team Aura's event-service reads the venue catalogue).
+      - host: platform.traefik
+        pathPrefix: /api/venues
+        stripPrefix: false
+      # The tailnet name of this node, for the shared Backstage front-end.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /venues
+        stripPrefix: false
+        tls: true
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /api/venues
+        stripPrefix: false
+        tls: true
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: DATABASE_URL
+      valueFrom: resource.venue-db.url
+    # The Backstage is served from this same tailnet node; stated explicitly
+    # so non-same-origin browser calls pass the CORS check.
+    - name: CORS_ALLOWED_ORIGINS
+      value: "https://apps.tail9a6ddb.ts.net"
+    # HS256 secret shared with the Auth service (Team Ninjava): the verifier
+    # must use the SAME secret the issuer signs with. The vault project is not
+    # provisioned for any team yet; once it exists, add:
+    #   - name: JWT_SECRET
+    #     valueFrom: vault:<project>/<environment>/JWT_SECRET
+    # Until then the service boots and serves public routes; token-protected
+    # routes answer 500 ("JWT_SECRET environment variable is not configured").
+  networking:
+    exposeToPlatform: true

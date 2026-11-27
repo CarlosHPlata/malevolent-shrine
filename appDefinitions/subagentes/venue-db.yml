@@ -1,0 +1,31 @@
+# Venue Store: MongoDB behind venue-service. Private to the subagentes team:
+# only venue-service connects to it.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: venue-db
+  owner: subagentes
+spec:
+  type: mongo
+  image: mongo
+  # Same major as the service's compose.yaml.
+  version: "7.0"
+  imagePullPolicy: IfNotPresent
+  port: 27017
+  # Prisma's MongoDB connector requires a replica set for relation writes, so
+  # the single node runs as rs0 (not optional). Shrine has no init hook: the
+  # set itself is initiated once after the first deploy with
+  # venues/scripts/shrine-init.sh (docker exec ... mongosh rs.initiate).
+  command: ["--replSet", "rs0", "--bind_ip_all"]
+  outputs:
+    - name: host
+    - name: port
+    # directConnection keeps the driver on this one node instead of
+    # re-discovering the member by its rs0 host name.
+    - name: url
+      template: "mongodb://{{.host}}:{{.port}}/venue_db?replicaSet=rs0&directConnection=true"
+  volumes:
+    - name: data
+      mountPath: /data/db
+  networking:
+    exposeToPlatform: false

@@ -1,0 +1,14 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: subagentes
+spec:
+  displayName: "SubAgentes (Ticket D-Saster venue catalogue)"
+  contact: "hectoralejandro.bc@gmail.com"
+  quotas:
+    # venue-service
+    maxApps: 1
+    # venue-db
+    maxResources: 1
+    allowedResourceTypes:
+      - mongo
