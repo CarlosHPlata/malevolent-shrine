@@ -1,0 +1,30 @@
+# User Store: users (with password_hash) and invitations (with the `used` flag).
+# auth-service runs its own migrations on startup.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: auth-db
+  owner: ninjava
+spec:
+  type: postgres
+  # Same major version as the compose stack (postgres:16-alpine).
+  version: "16-alpine"
+  port: 5432
+  env:
+    - name: POSTGRES_USER
+      value: auth
+    - name: POSTGRES_DB
+      value: auth
+    - name: POSTGRES_PASSWORD
+      generated: true
+  outputs:
+    - name: host
+    - name: port
+    # Read by auth-service as DATABASE_URL.
+    - name: url
+      template: "postgres://{{.POSTGRES_USER}}:{{.POSTGRES_PASSWORD}}@{{.host}}:{{.port}}/{{.POSTGRES_DB}}"
+  volumes:
+    - name: data
+      mountPath: /var/lib/postgresql/data
+  networking:
+    exposeToPlatform: false

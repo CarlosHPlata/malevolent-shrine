@@ -1,0 +1,15 @@
+apiVersion: shrine/v1
+kind: Team
+metadata:
+  name: ninjava
+spec:
+  displayName: "Ninjava (Ticket D-Saster: Auth / User Management)"
+  contact: "a19201340@alumnos.uady.mx"
+  quotas:
+    # auth-service
+    maxApps: 1
+    # auth-db, auth-cache
+    maxResources: 2
+    allowedResourceTypes:
+      - postgres
+      - redis
