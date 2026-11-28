@@ -1,0 +1,30 @@
+# Payment Store: payments, their transactions and the idempotency keys.
+# payment-service applies the migrations before it starts (see its spec.command).
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: payment-db
+  owner: ninjava
+spec:
+  type: postgres
+  # Same image as the compose stack (postgres:16-alpine).
+  version: "16-alpine"
+  port: 5432
+  env:
+    - name: POSTGRES_USER
+      value: payment
+    - name: POSTGRES_DB
+      value: payment_store
+    - name: POSTGRES_PASSWORD
+      generated: true
+  outputs:
+    - name: host
+    - name: port
+    # Read by payment-service as DATABASE_URL.
+    - name: url
+      template: "postgres://{{.POSTGRES_USER}}:{{.POSTGRES_PASSWORD}}@{{.host}}:{{.port}}/{{.POSTGRES_DB}}"
+  volumes:
+    - name: data
+      mountPath: /var/lib/postgresql/data
+  networking:
+    exposeToPlatform: false

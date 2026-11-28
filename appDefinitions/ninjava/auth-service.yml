@@ -1,0 +1,57 @@
+# Ticket D-Saster Auth: registration, login, JWT issuing, invitations (Node + Express).
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: auth-service
+  owner: ninjava
+spec:
+  # Pushed by the repo's publish-image workflow (target: runner) on every vX.Y.Z
+  # tag. No tag: under Pinned, Shrine resolves the newest version once and
+  # records it; move it with `shrine bump application auth-service -v <version>`.
+  image: reg:falcon/ninjava-auth-service
+  imagePullPolicy: Pinned
+  port: 4000
+  replicas: 1
+  routing:
+    domain: auth.ninjava.internal
+    aliases:
+      # The tailnet name of this node. The prefix is stripped, so the service
+      # still sees /auth/login, /invitations, /health.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /ninjava-auth
+        stripPrefix: true
+        tls: true
+      # The gateway's own name on the platform network, for other teams'
+      # services (e.g. POST /auth/validate).
+      - host: platform.traefik
+        pathPrefix: /ninjava-auth
+        stripPrefix: true
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: "4000"
+    - name: DATABASE_URL
+      valueFrom: resource.auth-db.url
+    - name: REDIS_URL
+      valueFrom: resource.auth-cache.url
+    # HMAC key for the JWTs. The services that validate the token
+    # (event, venue, booking) need the same value, so it lives in the vault.
+    - name: JWT_SECRET
+      valueFrom: vault:ticketdsaster/prod/JWT_SECRET
+    - name: JWT_EXPIRES_IN_SECONDS
+      value: "28800"
+    # HTTP Basic credentials for POST /invitations. The service refuses to
+    # start if either is missing.
+    - name: STAFF_USERNAME
+      valueFrom: vault:ticketdsaster/prod/STAFF_USERNAME
+    - name: STAFF_PASSWORD
+      valueFrom: vault:ticketdsaster/prod/STAFF_PASSWORD
+    # Every request arrives through Traefik: one proxy hop, so the login rate
+    # limit keys on the client IP rather than on the gateway's.
+    - name: TRUST_PROXY
+      value: "1"
+    - name: INVITATION_TTL_SECONDS
+      value: "300"
+  networking:
+    exposeToPlatform: true

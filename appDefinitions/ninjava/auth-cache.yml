@@ -1,0 +1,21 @@
+# Invitation time window: one key per invitation code, with a 5-minute TTL.
+# No volume: the keys are short-lived, and losing them only expires
+# invitations early.
+apiVersion: shrine/v1
+kind: Resource
+metadata:
+  name: auth-cache
+  owner: ninjava
+spec:
+  type: redis
+  # Same major version as the compose stack (redis:7-alpine).
+  version: "7-alpine"
+  port: 6379
+  outputs:
+    - name: host
+    - name: port
+    # Read by auth-service as REDIS_URL.
+    - name: url
+      template: "redis://{{.host}}:{{.port}}"
+  networking:
+    exposeToPlatform: false
