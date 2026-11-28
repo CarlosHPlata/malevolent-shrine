@@ -1,0 +1,60 @@
+# Ticket D-Saster Payments: charges, captures and refunds for ticket purchases (Node + Express).
+apiVersion: shrine/v1
+kind: Application
+metadata:
+  name: payment-service
+  owner: ninjava
+spec:
+  # Pushed by the repo's release workflow (docker-image job) on every vX.Y.Z tag.
+  # No tag: under Pinned, Shrine resolves the newest version once and records it;
+  # move it with `shrine bump application payment-service -v <version>`.
+  image: reg:falcon/ninjava-payment-service
+  imagePullPolicy: Pinned
+  port: 3000
+  replicas: 1
+  # The service never migrates on its own and Shrine has no one-off jobs, so the
+  # pending migrations run here, right before the server starts. knex is a
+  # production dependency and db/migrations ships in the image; knex's own lock
+  # keeps two starts from migrating at once. Seeds never run.
+  command:
+    - sh
+    - -c
+    - ./node_modules/.bin/knex migrate:latest && exec node src/index.js
+  routing:
+    domain: payment.ninjava.internal
+    aliases:
+      # The tailnet name of this node. The prefix is stripped, so the service
+      # still sees /payments, /webhooks/payments, /health.
+      - host: apps.tail9a6ddb.ts.net
+        pathPrefix: /ninjava-payments
+        stripPrefix: true
+        tls: true
+      # The gateway's own name on the platform network, for the Booking Service.
+      - host: platform.traefik
+        pathPrefix: /ninjava-payments
+        stripPrefix: true
+  env:
+    - name: APP_ENV
+      value: production
+    - name: PORT
+      value: "3000"
+    # The default is the in-memory store, which loses every payment on restart.
+    - name: PAYMENT_STORE
+      value: postgres
+    - name: DATABASE_URL
+      valueFrom: resource.payment-db.url
+    # No Stripe yet: the fake provider needs no keys.
+    - name: PAYMENT_PROVIDER
+      value: fake
+    # HS256 key shared with auth-service, which signs the tokens Booking forwards.
+    - name: JWT_SECRET
+      valueFrom: vault:ticketdsaster/prod/JWT_SECRET
+    # Not set yet:
+    # - STRIPE_WEBHOOK_SECRET: until it exists every webhook is rejected, which is
+    #   fine with the fake provider (and the routes above are not public anyway).
+    # - BOOKING_NOTIFY_URL / BOOKING_SERVICE_TOKEN: notifications are skipped until
+    #   the Booking Service is deployed.
+    # - TRUST_PROXY: the service has no 'trust proxy' setting yet, so the /payments
+    #   rate limit sees Traefik's IP for every request.
+  networking:
+    exposeToPlatform: true

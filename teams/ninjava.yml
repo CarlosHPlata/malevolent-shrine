@@ -3,13 +3,13 @@ kind: Team
 metadata:
   name: ninjava
 spec:
-  displayName: "Ninjava (Ticket D-Saster: Auth / User Management)"
+  displayName: "Ninjava (Ticket D-Saster: Auth / User Management and Payments)"
   contact: "a19201340@alumnos.uady.mx"
   quotas:
-    # auth-service
-    maxApps: 1
-    # auth-db, auth-cache
-    maxResources: 2
+    # auth-service, payment-service
+    maxApps: 2
+    # auth-db, auth-cache, payment-db
+    maxResources: 3
     allowedResourceTypes:
       - postgres
       - redis
